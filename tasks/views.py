@@ -4,6 +4,33 @@ from django.db import connection
 from django.views.decorators.csrf import csrf_exempt
 import uuid
 import json
+import threading
+import time
+import requests
+import re
+
+headers = {
+    'Host': 'u.zrb.net',
+    'Referer': 'http://u.zrb.net/user/userindex',
+    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36',
+}
+
+
+# class myThread (threading.Thread):
+#     def __init__(self):
+#         threading.Thread.__init__(self)
+
+#     def run(self):
+#         while True:
+#             print("Starting 1")
+#             res = requests.get(
+#                 'http://u.zrb.net/user/Channel_list', headers=headers)
+#             print(res.content)
+#             time.sleep(190)
+
+
+# thread = myThread()
+# thread.start()
 
 
 @csrf_exempt
@@ -40,5 +67,42 @@ def login(request):
 
 @csrf_exempt
 def newtask(request):
+    session = requests.Session()
+
+    res = session.get('http://u.zrb.net/user/Channel', headers=headers)
+    # print(res.content)
+    try:
+        r = re.search(r'appid1">([a-z0-9]+)<', str(res.content))
+        appid = r.group(1)
+        r = re.search(
+            r'Appkey"\smaxlength="25"\svalue="([a-z0-9]+)">', str(res.content))
+        appkey = r.group(1)
+        payload = {
+            'apiid': '人人赚',
+            'sitename': 'test2',
+            'QICQ': '75034320',
+            'balanceName': '100',
+            'percentage': '90',
+            'Appid': appid,
+            'Appkey': appkey
+        }
+        print(payload)
+    except Exception as identifier:
+        session2 = requests.Session()
+        res = session2.get('http://u.zrb.net/gif.aspx?' +
+                           uuid.uuid4().hex, headers=headers)
+        print(res.content)
+        with open('/code/captcha.png', 'wb') as f:
+            f.write(res.content)
+        return HttpResponse('Unauthorized', status=401)
+
     r = json.dumps({"code": 0, "result": 0})
-    return HttpResponse(r)
+    return HttpResponse(res.content)
+
+
+@csrf_exempt
+def getcaptcha(request):
+    with open('/code/captcha.png', 'rb') as f:
+        data = f.read()
+    res = HttpResponse(data, content_type='image/png')
+    return res
