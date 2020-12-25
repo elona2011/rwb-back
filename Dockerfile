@@ -1,5 +1,6 @@
 FROM python:3.8
 ENV PYTHONUNBUFFERED 1
+ENV TZ=Asia/Shanghai
 RUN mkdir /code
 WORKDIR /code
 COPY requirements.txt /code/
