@@ -17,13 +17,14 @@ class AuthMiddleware:
         if request.path != '/tasks/login' and request.path != '/tasks/getcaptcha':
             with connection.cursor() as cursor:
                 cursor.execute("""
-                    select id from users where session=%s and name=%s
+                    select id,name from users where session=%s and name=%s
                     """, [session, name])
                 row = cursor.fetchone()
                 if row == None:
                     return HttpResponse('Unauthorized', status=401)
                 # print(row[0])
-                request.COOKIES['id'] = row[0]
+                request.COOKIES['userid'] = row[0]
+                request.COOKIES['username'] = row[1]
         response = self.get_response(request)
         # Code to be executed for each request/response after
         # the view is called.

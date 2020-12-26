@@ -25,7 +25,7 @@ def newtask(request):
             r'Appkey"\smaxlength="25"\svalue="([a-z0-9]+)">', str(res.content))
         appkey = r.group(1)
         payload = {
-            'apiid': (None, '人人赚'),
+            'apiid': (None, '对接型'),
             'sitename': (None, sitename),
             'sitelogo': (None, ''),
             'QICQ': (None, QICQ),
@@ -34,7 +34,7 @@ def newtask(request):
             'percentage': (None, percentage),
             'Appid': (None, appid),
             'Appkey': (None, appkey),
-            'addBalanceUrl': (None, ''),
+            'addBalanceUrl': (None, 'http://www.xlcmll.top/taskdone'),
         }
         print(payload)
 
@@ -48,13 +48,14 @@ def newtask(request):
     r = re.search(r'任务墙列表(.|\n)+任务墙地址(.|\n)+管理任务', res.content.decode("utf-8"))
     print(r)
     if r != None:
-        id = request.COOKIES.get('id', '')
-        if id != '':
+        userid = request.COOKIES.get('userid', '')
+        username = request.COOKIES.get('username', '')
+        if userid != '':
             with connection.cursor() as cursor:
                 cursor.execute("""
-                    INSERT INTO tasks(userid,sitename,QICQ,balanceName,balanceRate,percentage,appid)
-                        VALUES(%s,%s,%s,%s,%s,%s,%s);
-                    """, [id, sitename, QICQ, balanceName, balanceRate, percentage, appid])
+                    INSERT INTO tasks(userid,username,sitename,QICQ,balanceName,balanceRate,percentage,appid)
+                        VALUES(%s,%s,%s,%s,%s,%s,%s,%s);
+                    """, [userid, username, sitename, QICQ, balanceName, balanceRate, percentage, appid])
                 # print(cursor.lastrowid)
             return HttpResponse(json.dumps({"code": 0}))
     return HttpResponse(json.dumps({"code": 1}))

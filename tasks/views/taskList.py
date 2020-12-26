@@ -15,6 +15,7 @@ def tasklist(request):
             create table IF NOT EXISTS tasks (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 userid int NOT NULL,
+                username TEXT NOT NULL,
                 sitename TEXT NOT NULL,
                 QICQ TEXT NOT NULL,
                 balanceName TEXT NOT NULL,
@@ -25,7 +26,7 @@ def tasklist(request):
             )
             """)
         cursor.execute("""
-            select tasks.id,tasks.sitename,tasks.QICQ,tasks.balanceRate,tasks.percentage,datetime(tasks.createtime,'localtime') as date from tasks inner join users on tasks.userid=users.id and users.session=%s
+            select tasks.id,tasks.sitename,tasks.QICQ,tasks.balanceRate,tasks.percentage,tasks.Appid,datetime(tasks.createtime,'localtime') as date from tasks inner join users on tasks.userid=users.id and users.session=%s
             """, [session])
         rows = cursor.fetchall()
         print(rows)
